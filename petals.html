@@ -7,6 +7,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <script src="https://d3js.org/d3.v7.min.js"></script>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
@@ -20,7 +21,7 @@
             </p>
         <![endif]-->
 
-
+        <input type="file" id="file-selector" accept=".json">
         <div id="main">
 
         </div>
@@ -47,7 +48,35 @@
      `
      document.getElementById('main').innerHTML = containerHTML
 
-     fetch('./movedata.json')
+     const colourDict = {
+         Action: "#ffc8f0",
+         Comedy: "#cbf2bd",
+         Animation: "#afe9ff",
+         Drama: "#ffb09e",
+         Other: "#fff2b4"
+     }
+
+     const fileSelector = document.getElementById('file-selector')
+     fileSelector.addEventListener('change', (event) => {
+         const file = event.target.files[0]
+         const reader = new FileReader()
+         reader.addEventListener('load', e => {
+             const movies = JSON.parse(e.target.result)
+             const fiveMov = movies.slice(0,5)
+             const selected = d3.select('#container')
+                                .selectAll('path')
+                                .data(fiveMov)
+                                .attr('fill', (d, i) => {
+                                    if (d.genres[0] in colourDict) {
+                                        return colourDict[d.genres[0]]
+                                    } else {
+                                        return colourDict.Other
+                                    }
+                                })
+             console.log(selected)
+         })
+         reader.readAsText(file)
+     })
 
 
     </script>
