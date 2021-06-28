@@ -7,6 +7,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <script src="https://d3js.org/d3.v7.min.js"></script>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
@@ -36,5 +37,52 @@
                      C -5,80 -7,82 -18,82
                      C -22,70, -50,50, 0,0' fill='none' stroke='#000' stroke-width=2 transform='translate(50,0)'/>
         </svg>
+
+        <h2>Container</h2>
+        <div id="containertest">
+
+        </div>
     </body>
+    <script type="text/javascript">
+     /**
+      * @param {String} HTML representing any number of sibling elements
+      * @return {NodeList}
+      */
+    function htmlToElements(html) {
+         var template = document.createElement('template');
+         template.innerHTML = html;
+         return template.content.childNodes;
+     }
+
+     const barData = [12, 55, 66, 10, 70]
+
+     const rectWidth = 50
+
+     const containerHTML = `
+         <svg id="container" width=${rectWidth * barData.length} height=100 style='border: 1px dashed'>
+           <rect/>
+           <rect/>
+           <rect/>
+           <rect/>
+           <rect/>
+        </svg>
+     `
+     document.getElementById('containertest').innerHTML = containerHTML
+     const select = d3.select('#container')
+                      .selectAll('rect')
+                      .data(barData)
+                      .attr('x', (d, i) => i * rectWidth)
+                      .attr('height', d => d)
+                      .attr('width', rectWidth)
+                      .attr('stroke-width', 3)
+                      .attr('stroke', 'plum')
+                      .attr('fill', 'pink')
+
+
+
+
+     console.log(select)
+
+    </script>
+
 </html>
