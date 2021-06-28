@@ -38,12 +38,7 @@
                      C -22,70, -50,50, 0,0`
 
      const containerHTML = `
-         <svg id="container" width=500 height=100 style='border: 1px dashed'>
-             <path d='${petalPath}' transform='translate(50, 0)' />
-             <path d='${petalPath}' transform='translate(150, 0)' />
-             <path d='${petalPath}' transform='translate(250, 0)' />
-             <path d='${petalPath}' transform='translate(350, 0)' />
-             <path d='${petalPath}' transform='translate(450, 0)' />
+         <svg id="container" width=1500 height=6000 style='border: 1px dashed'>
         </svg>
      `
      document.getElementById('main').innerHTML = containerHTML
@@ -56,6 +51,20 @@
          Other: "#fff2b4"
      }
 
+     const shape = {
+         'G': "M0 0 C50 50 50 100 0 100 C-50 100 -50 50 0 0",
+         'PG': "M-35 0 C-25 25 25 25 35 0 C50 25 25 75 0 100 C-25 75 -50 25 -35 0",
+         'PG-13': "M0,0 C50,40 50,70 20,100 L0,85 L-20,100 C-50,70 -50,40 0,0",
+         'R': "M0 0 C50 25 50 75 0 100 C-50 75 -50 25 0 0",
+         'Other': petalPath
+     }
+
+     const calculateGridPos = i => {
+         const x = 50 + (i % 15) * 100
+         const y = Math.floor(i / 15) * 105
+         return [x, y]
+     }
+
      const fileSelector = document.getElementById('file-selector')
      fileSelector.addEventListener('change', (event) => {
          const file = event.target.files[0]
@@ -66,10 +75,16 @@
              const selected = d3.select('#container')
                                 .selectAll('path')
                                 .data(movies)
+                                .enter()
+                                .append('path').attr('d', d => shape[d.rated] || shape.Other)
+                                .attr('transform', (d,i) => {
+                                    const [x, y] = calculateGridPos(i)
+                                    return `translate(${x}, ${y})`
+                                })
                                 .attr('fill', d => colourDict[d.genres[0]] || colourDict.Other)
                                 .attr('fill-opacity', 0.5)
                                 .attr('stroke-width', 2)
-                                .attr('stroke', d => colourDict[d.genres[0]] || colorDict.Other)
+                                .attr('stroke', d => colourDict[d.genres[0]] || colourDict.Other)
 
              console.log(selected)
          })
