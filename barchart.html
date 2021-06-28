@@ -7,6 +7,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <script src="https://d3js.org/d3.v7.min.js"></script>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
@@ -19,7 +20,46 @@
             your experience.
             </p>
         <![endif]-->
+        <div id="containertest">
 
+        </div>
+
+        <button id="add">Add data</button>
 
     </body>
+    <script type="text/javascript">
+
+     let barData = []
+     const rectWidth = 50
+
+     const containerHTML = `
+        <svg id="container" width=${2000} height=100 style='border: 1px dashed'>
+        </svg>
+     `
+     document.getElementById('containertest').innerHTML = containerHTML
+
+     const updateBars = (svg, data) => {
+         svg
+           .selectAll('rect')
+           .data(data, d => d)
+           .join('rect')
+           .attr('x', (d, i) => i * rectWidth)
+           .attr('y', (d, i) => 100 - d)
+           .attr('height', d => d)
+           .attr('width', rectWidth)
+           .attr('stroke-width', 3)
+           .attr('stroke', 'plum')
+           .attr('fill', 'pink')
+     }
+
+     const chart = d3.select('#container')
+
+     document.getElementById('add').addEventListener('click', e => {
+         barData.push(Math.floor(Math.random() * 100))
+         updateBars(chart, barData)
+     })
+
+    </script>
+
+
 </html>
