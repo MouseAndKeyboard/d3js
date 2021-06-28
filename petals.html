@@ -1,0 +1,56 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Petals</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">
+            You are using an <strong>outdated</strong> browser. Please
+            <a href="http://browsehappy.com/">upgrade your browser</a> to improve
+            your experience.
+            </p>
+        <![endif]-->
+
+
+        <div id="main">
+
+        </div>
+
+
+
+    </body>
+
+    <script type="text/javascript">
+     const petalPath = `M 0,0
+                     C 50,50 22,70 23,100
+                     C 07,82 05,80 00,80
+                     C -5,80 -7,82 -23,100
+                     C -22,70, -50,50, 0,0`
+
+     const containerHTML = `
+         <svg id="container" width=500 height=100 style='border: 1px dashed'>
+             <path d='${petalPath}' transform='translate(50, 0)' />
+             <path d='${petalPath}' transform='translate(150, 0)' />
+             <path d='${petalPath}' transform='translate(250, 0)' />
+             <path d='${petalPath}' transform='translate(350, 0)' />
+             <path d='${petalPath}' transform='translate(450, 0)' />
+        </svg>
+     `
+     document.getElementById('main').innerHTML = containerHTML
+
+     fetch('./movedata.json')
+
+
+    </script>
+
+
+</html>
