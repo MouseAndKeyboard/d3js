@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
 
@@ -37,31 +38,28 @@
                      C -5,80 -7,82 -23,100
                      C -22,70, -50,50, 0,0`
 
+
+     const petalSize = 100
+     const petalsPerRow = Math.floor((window.innerWidth - 30) / petalSize) - 2
+     const width = (petalsPerRow + 2) * petalSize
+
      const containerHTML = `
-         <svg id="container" width=1500 height=6000 style='border: 1px dashed'>
+         <svg id="container" width=${width} height=1000 style='border: 1px dashed'>
         </svg>
      `
      document.getElementById('main').innerHTML = containerHTML
 
-     const colourDict = {
-         Action: "#ffc8f0",
-         Comedy: "#cbf2bd",
-         Animation: "#afe9ff",
-         Drama: "#ffb09e",
-         Other: "#fff2b4"
-     }
+     const topGenres = ['Action', 'Comedy', 'Animation', 'Drama']
+     const petalColours = ['#ffc8f0', '#cbf2bd', '#afe9ff', '#ffb09e', '#fff2b4']
 
-     const shape = {
-         'G': "M0 0 C50 50 50 100 0 100 C-50 100 -50 50 0 0",
-         'PG': "M-35 0 C-25 25 25 25 35 0 C50 25 25 75 0 100 C-25 75 -50 25 -35 0",
-         'PG-13': "M0,0 C50,40 50,70 20,100 L0,85 L-20,100 C-50,70 -50,40 0,0",
-         'R': "M0 0 C50 25 50 75 0 100 C-50 75 -50 25 0 0",
-         'Other': petalPath
-     }
+     const petalShapes = ["M0 0 C50 50 50 100 0 100 C-50 100 -50 50 0 0",
+                          "M-35 0 C-25 25 25 25 35 0 C50 25 25 75 0 100 C-25 75 -50 25 -35 0",
+                          "M0,0 C50,40 50,70 20,100 L0,85 L-20,100 C-50,70 -50,40 0,0",
+                          "M0 0 C50 25 50 75 0 100 C-50 75 -50 25 0 0"]
 
      const calculateGridPos = i => {
-         const x = 50 + (i % 15) * 100
-         const y = Math.floor(i / 15) * 105
+         const x = 80 + ((i % petalsPerRow) * petalSize * 1.4)
+         const y = 80 + (Math.floor(i / petalsPerRow) * petalSize * 1.4)
          return [x, y]
      }
 
@@ -72,21 +70,69 @@
          reader.addEventListener('load', e => {
              const movies = JSON.parse(e.target.result)
              const fiveMov = movies.slice(0,5)
-             const selected = d3.select('#container')
-                                .selectAll('path')
-                                .data(movies)
-                                .enter()
-                                .append('path').attr('d', d => shape[d.rated] || shape.Other)
-                                .attr('transform', (d,i) => {
-                                    const [x, y] = calculateGridPos(i)
-                                    return `translate(${x}, ${y})`
-                                })
-                                .attr('fill', d => colourDict[d.genres[0]] || colourDict.Other)
-                                .attr('fill-opacity', 0.5)
-                                .attr('stroke-width', 2)
-                                .attr('stroke', d => colourDict[d.genres[0]] || colourDict.Other)
 
-             console.log(selected)
+             const ratingScale = d3.scaleLinear()
+                                   .domain(
+                                       d3.extent(movies, d => d.rating)
+                                   )
+                                   .range([0.2, 0.75])
+
+             const petalScale = d3.scaleQuantize()
+                                  .domain(d3.extent(movies, d => d.votes))
+                                  .range(_.range(5, 11))
+
+             const colourScale = d3.scaleOrdinal()
+                                   .domain(topGenres)
+                                   .range(petalColours)
+                                   .unknown('#fff2b4')
+
+             const pathScale = d3.scaleOrdinal()
+                                 .range(petalShapes)
+
+
+             const transform = _.map(movies, (d, i) => {
+                 return {
+                     title: d.title,
+                     colour: colourScale(d.genres[0]),
+                     path: pathScale(d.rated),
+                     numPetals: petalScale(d.votes),
+                     scale: ratingScale(d.rating),
+                     translate: calculateGridPos(i),
+                 }
+             })
+
+             const groups = d3.select('#container')
+                              .selectAll('g')
+                              .data(transform)
+                              .enter()
+                              .append('g')
+
+             const paths = groups.selectAll('path')
+                                 .data(d => {
+                                     return _.times(d.numPetals, i => {
+                                         return Object.assign({}, d, {rotate: i * (360 / d.numPetals)})
+                                     })
+                                 }).enter().append('path')
+
+             const texts = groups.append('text')
+                                 .text(d => d.title)
+
+             groups.attr('transform', (d, i) => `translate(${d.translate})`)
+
+             paths.attr('d', d => d.path)
+                .attr('transform', (d,i) => `rotate(${d.rotate})scale(${d.scale})`)
+                .attr('fill', d => d.colour)
+                .attr('fill-opacity', 0.5)
+                .attr('stroke-width', 1)
+                .attr('stroke', d => d.colour)
+
+             texts.attr('text-anchor', 'middle')
+                                 .attr('dy', '.35em')
+                                 .style('font-size', '.7em')
+                                 .style('font-style', 'italic').text(d => d.title.slice(0,20))
+
+
+             console.log(paths)
          })
          reader.readAsText(file)
      })
