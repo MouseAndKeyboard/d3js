@@ -65,14 +65,12 @@
              const fiveMov = movies.slice(0,5)
              const selected = d3.select('#container')
                                 .selectAll('path')
-                                .data(fiveMov)
-                                .attr('fill', (d, i) => {
-                                    if (d.genres[0] in colourDict) {
-                                        return colourDict[d.genres[0]]
-                                    } else {
-                                        return colourDict.Other
-                                    }
-                                })
+                                .data(movies)
+                                .attr('fill', d => colourDict[d.genres[0]] || colourDict.Other)
+                                .attr('fill-opacity', 0.5)
+                                .attr('stroke-width', 2)
+                                .attr('stroke', d => colourDict[d.genres[0]] || colorDict.Other)
+
              console.log(selected)
          })
          reader.readAsText(file)
