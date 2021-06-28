@@ -39,17 +39,24 @@
      document.getElementById('containertest').innerHTML = containerHTML
 
      const updateBars = (svg, data) => {
-         svg
-           .selectAll('rect')
-           .data(data, d => d)
-           .join('rect')
-           .attr('x', (d, i) => i * rectWidth)
-           .attr('y', (d, i) => 100 - d)
-           .attr('height', d => d)
-           .attr('width', rectWidth)
-           .attr('stroke-width', 3)
-           .attr('stroke', 'plum')
-           .attr('fill', 'pink')
+         const t = d3.transition().duration(200)
+
+         svg.selectAll('rect')
+                     .data(data, d => d)
+                     .join(
+                         enter => {
+                             const rect = enter.append('rect')
+                                               .attr('height', 0).attr('y', 100)
+                         }
+                     )
+                     .attr('x', (d, i) => i * rectWidth)
+                     .attr('width', rectWidth)
+                     .attr('stroke-width', 3)
+                     .attr('stroke', 'plum')
+                     .attr('fill', 'pink')
+                     .transition(t)
+                     .attr('y', (d, i) => 100 - d)
+                     .attr('height', d => d)
      }
 
      const chart = d3.select('#container')
